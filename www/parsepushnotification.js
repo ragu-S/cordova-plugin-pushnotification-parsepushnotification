@@ -2,7 +2,7 @@
 module.exports = {
 
 	setUp: function(appId, clientKey) {
-		var self = this;	
+		var self = this;
         cordova.exec(
             function (result) {
 				if (typeof result == "string") {
@@ -10,12 +10,12 @@ module.exports = {
 						if (self.onRegisterAsPushNotificationClientSucceeded)
 							self.onRegisterAsPushNotificationClientSucceeded();
 					}
-/*					
+/*
 					else if (result == "onUnregisterSucceeded") {
 						if (self.onUnregisterSucceeded)
 							self.onUnregisterSucceeded();
 					}
-*/					
+*/
 					else if (result == "onSubscribeToChannelSucceeded") {
 						if (self.onSubscribeToChannelSucceeded)
 							self.onSubscribeToChannelSucceeded();
@@ -26,20 +26,19 @@ module.exports = {
 					}
 				}
 				else {
-					//if (result["event"] == "onXXX") {
-					//	//result["message"]
-					//	if (self.onXXX)
-					//		self.onXXX(result);
-					//}
-				}			
-			}, 
+					if(result["getTokenCall"]) {
+                        if(self.getDeviceToken)
+                            self.getDeviceToken(result);
+                    }
+				}
+			},
 			function (error) {
 				if (typeof result == "string") {
 					if (result == "onRegisterAsPushNotificationClientFailed") {
 						if (self.onRegisterAsPushNotificationClientFailed)
 							self.onRegisterAsPushNotificationClientFailed();
 					}
-/*					
+/*
 					else if (result == "onUnregisterFailed") {
 						if (self.onUnregisterFailed)
 							self.onUnregisterFailed();
@@ -52,7 +51,7 @@ module.exports = {
 					else if (result == "onUnsubscribeFailed") {
 						if (self.onUnsubscribeFailed)
 							self.onUnsubscribeFailed();
-					}					
+					}
 				}
 				else {
 					//if (result["event"] == "onXXX") {
@@ -60,64 +59,64 @@ module.exports = {
 					//	if (self.onXXX)
 					//		self.onXXX(result);
 					//}
-				}			
+				}
 			},
             'ParsePushNotificationPlugin',
-            'setUp',			
+            'setUp',
             [appId, clientKey]
-        ); 
+        );
     },
-/*	
+/*
 	registerAsPushNotificationClient: function() {
-		var self = this;	
+		var self = this;
         cordova.exec(
             null,
             null,
             'ParsePushNotificationPlugin',
             'registerAsPushNotificationClient',
             []
-        ); 
+        );
     },
     unregister: function() {
-		var self = this;	
+		var self = this;
         cordova.exec(
             null,
             null,
             'ParsePushNotificationPlugin',
             'unregister',
             []
-        ); 
-    },	
-*/	
+        );
+    },
+*/
 	subscribeToChannel: function(channel) {
-		var self = this;	
+		var self = this;
         cordova.exec(
             null,
             null,
             'ParsePushNotificationPlugin',
             'subscribeToChannel',
             [channel]
-        ); 
+        );
     },
     unsubscribe: function(channel) {
-		var self = this;	
+		var self = this;
         cordova.exec(
             null,
             null,
             'ParsePushNotificationPlugin',
             'unsubscribe',
             [channel]
-        ); 
+        );
     },
 	onRegisterAsPushNotificationClientSucceeded: null,
 	onRegisterAsPushNotificationClientFailed: null,
-/*	
+/*
 	onUnregisterSucceeded: null,
-	onUnregisterFailed: null,	
-*/	
+	onUnregisterFailed: null,
+*/
 	onSubscribeToChannelSucceeded: null,
 	onSubscribeToChannelFailed: null,
 	onUnsubscribeSucceeded: null,
-	onUnsubscribeFailed: null	
+	onUnsubscribeFailed: null
 };
 
