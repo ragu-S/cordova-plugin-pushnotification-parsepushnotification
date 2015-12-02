@@ -48,11 +48,8 @@
 */
 
 - (void)getDeviceToken: (CDVInvokedUrlCommand *)command {
-    NSString* channel = [command.arguments objectAtIndex:0];
-    NSLog(@"%@", channel);
-
     [self.commandDelegate runInBackground:^{
-        [self _getDeviceToken:channel];
+        [self _getDeviceToken];
     }];
 }
 
