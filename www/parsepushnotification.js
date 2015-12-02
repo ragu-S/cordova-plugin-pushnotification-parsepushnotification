@@ -27,8 +27,8 @@ module.exports = {
 				}
 				else {
 					if(result["getTokenCall"]) {
-                        if(self.getDeviceToken)
-                            self.getDeviceToken(result);
+                        if(self.deviceTokenRecieved)
+                            self.deviceTokenRecieved(result);
                     }
 				}
 			},
@@ -114,6 +114,7 @@ module.exports = {
 	onUnregisterSucceeded: null,
 	onUnregisterFailed: null,
 */
+    deviceTokenRecieved: null,
 	onSubscribeToChannelSucceeded: null,
 	onSubscribeToChannelFailed: null,
 	onUnsubscribeSucceeded: null,
