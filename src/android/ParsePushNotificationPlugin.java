@@ -129,33 +129,29 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 	}
 
     private void getDeviceToken() {
-        String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
+        //String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
         String deviceToken = ParseInstallation.getCurrentInstallation().get("deviceToken");
 
-        PluginResult pr = new PluginResult(PluginResult.Status.OK, "onUnsubscribeSucceeded");
-        pr.setKeepCallback(true);
-        callbackContextKeepCallback.sendPluginResult(pr);
-
-        String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
-        String deviceToken = ParseInstallation.getCurrentInstallation().getObjectId();
+        // String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
+        // String deviceToken = ParseInstallation.getCurrentInstallation().getObjectId();
 
         JSONObject mutableDeviceInfo = new JSONObject();
         mutableDeviceInfo.put("getTokenCall", true);
-        mutableDeviceInfo.put("installationId", installationId);
-        mutableDeviceInfo.put("deviceToken", objectId);
+        // mutableDeviceInfo.put("installationId", installationId);
+        mutableDeviceInfo.put("deviceToken", deviceToken);
 
         final JSONObject deviceInfo = new JSONObject(mutableDeviceInfo.toString());
 
         cordova.getActivity().runOnUiThread(new Runnable(){
             @Override
             public void run() {
-                _getDeviceToken(deviceInfo);
+                _getDeviceToken(deviceToken);
             }
         });
     }
 
     private void _getDeviceToken(JSONObject deviceInfo) {
-        PluginResult pr = new PluginResult(PluginResult.Status.OK, deviceInfo);
+        PluginResult pr = new PluginResult(PluginResult.Status.OK, deviceToken);
         pr.setKeepCallback(true);
         callbackContextKeepCallback.sendPluginResult(pr);
     }
