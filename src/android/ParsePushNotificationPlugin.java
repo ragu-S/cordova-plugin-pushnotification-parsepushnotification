@@ -128,29 +128,28 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 		});
 	}
 
-    private void getDeviceToken() {
-        //String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
-        String deviceToken = ParseInstallation.getCurrentInstallation().get("deviceToken");
+    private void getDeviceToken(String action, JSONArray args, CallbackContext callbackContext) {
+        String deviceToken = ParseInstallation.getCurrentInstallation().getString("deviceToken");
 
-        // String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
-        // String deviceToken = ParseInstallation.getCurrentInstallation().getObjectId();
+        try {
+            final JSONObject deviceInfo = new JSONObject();
+            deviceInfo.put("getTokenCall", true);
+            // mutableDeviceInfo.put("installationId", installationId);
+            deviceInfo.put("deviceToken", deviceToken);
 
-        JSONObject mutableDeviceInfo = new JSONObject();
-        mutableDeviceInfo.put("getTokenCall", true);
-        // mutableDeviceInfo.put("installationId", installationId);
-        mutableDeviceInfo.put("deviceToken", deviceToken);
-
-        final JSONObject deviceInfo = new JSONObject(mutableDeviceInfo.toString());
-
-        cordova.getActivity().runOnUiThread(new Runnable(){
-            @Override
-            public void run() {
-                _getDeviceToken(deviceToken);
-            }
-        });
+            Log.d("DEVICE_TOKEN", deviceToken);
+            cordova.getActivity().runOnUiThread(new Runnable(){
+                @Override
+                public void run() {
+                    _getDeviceToken(deviceToken);
+                }
+            });
+        } catch (JSONException e) {
+            Log.d("DEBUG", e.toString());
+        }
     }
 
-    private void _getDeviceToken(JSONObject deviceInfo) {
+    private void _getDeviceToken(JSONObject deviceToken) {
         PluginResult pr = new PluginResult(PluginResult.Status.OK, deviceToken);
         pr.setKeepCallback(true);
         callbackContextKeepCallback.sendPluginResult(pr);
