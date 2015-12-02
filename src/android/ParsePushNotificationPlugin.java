@@ -93,7 +93,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 		}
 */
         else if (action.equals("getDeviceToken")) {
-            getInstallationId(action, args, callbackContext);
+            getDeviceToken(action, args, callbackContext);
 
             return true;
         }
