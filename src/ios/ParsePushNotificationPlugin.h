@@ -13,6 +13,7 @@
 - (void)registerAsPushNotificationClient: (CDVInvokedUrlCommand *)command;
 - (void)unregister: (CDVInvokedUrlCommand *)command;
 */
+- (void)getDeviceToken: (CDVInvokedUrlCommand *)command;
 - (void)subscribeToChannel: (CDVInvokedUrlCommand *)command;
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command;
 

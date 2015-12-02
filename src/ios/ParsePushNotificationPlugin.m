@@ -25,11 +25,11 @@
     NSString* clientKey = [command.arguments objectAtIndex:1];
 	//NSLog(@"%@", applicationId);
 	//NSLog(@"%@", clientKey);
-	
+
     self.callbackIdKeepCallback = command.callbackId;
-	
+
     [self.commandDelegate runInBackground:^{
-		[self _setUp:applicationId aClientKey:clientKey];	
+		[self _setUp:applicationId aClientKey:clientKey];
     }];
 }
 
@@ -47,10 +47,19 @@
 }
 */
 
+- (void)getDeviceToken: (CDVInvokedUrlCommand *)command {
+    NSString* channel = [command.arguments objectAtIndex:0];
+    NSLog(@"%@", channel);
+
+    [self.commandDelegate runInBackground:^{
+        [self _getDeviceToken:channel];
+    }];
+}
+
 - (void)subscribeToChannel: (CDVInvokedUrlCommand *)command {
 	NSString* channel = [command.arguments objectAtIndex:0];
 	NSLog(@"%@", channel);
-	
+
     [self.commandDelegate runInBackground:^{
 		[self _subscribeToChannel:channel];
     }];
@@ -59,7 +68,7 @@
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command {
 	NSString* channel = [command.arguments objectAtIndex:0];
 	NSLog(@"%@", channel);
-	
+
     [self.commandDelegate runInBackground:^{
 		[self _unsubscribe:channel];
     }];
@@ -68,21 +77,21 @@
 - (void) _setUp:(NSString *)applicationId aClientKey:(NSString *)clientKey {
 	self.applicationId = applicationId;
 	self.clientKey = clientKey;
-	
+
     [Parse setApplicationId:applicationId clientKey:clientKey];
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-    [currentInstallation save];    
+    [currentInstallation save];
 	//PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-	//NSString *installationId = currentInstallation.installationId;	
+	//NSString *installationId = currentInstallation.installationId;
 	//NSString *objectId = currentInstallation.objectId;
 	//NSArray *channels = currentInstallation.channels;
-	
+
 	CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onRegisterAsPushNotificationClientSucceeded"];
 	[pr setKeepCallbackAsBool:YES];
 	[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 	//CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
 	//[pr setKeepCallbackAsBool:YES];
-	//[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];	
+	//[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 }
 
 /*
@@ -91,16 +100,16 @@
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation save];
 	//PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-	//NSString *installationId = currentInstallation.installationId;	
+	//NSString *installationId = currentInstallation.installationId;
 	//NSString *objectId = currentInstallation.objectId;
 	//NSArray *channels = currentInstallation.channels;
-	
+
 	CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onRegisterAsPushNotificationClientSucceeded"];
 	[pr setKeepCallbackAsBool:YES];
 	[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 	//CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
 	//[pr setKeepCallbackAsBool:YES];
-	//[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];	
+	//[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 }
 
 - (void) _unregister {
@@ -113,22 +122,38 @@
 }
 */
 
+- (void) _getDeviceToken {
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    NSString *deviceToken = [currentInstallation deviceToken];
+    NSString *installationId = [currentInstallation installationId];
+    NSDictionary *deviceInfo = @{
+        @"getTokenCall" : @"YES",
+        @"installationId" : installationId,
+        @"deviceToken" : deviceToken,
+    };
+
+    //NSString *str = [NSString stringWithFormat:@"Device Token=%@",deviceToken];
+    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deviceInfo];
+    [pr setKeepCallbackAsBool:YES];
+    [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
+}
+
 - (void) _subscribeToChannel:(NSString *)channel {
     // Register for Push Notitications iOS 8
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
                                                         UIUserNotificationTypeBadge |
-                                                        UIUserNotificationTypeSound);        
+                                                        UIUserNotificationTypeSound);
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes categories:nil];
-        
+
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
         [[UIApplication sharedApplication] registerForRemoteNotifications];
     } else {
         // Register for Push Notifications before iOS 8
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound)];
     }
-	
-	
+
+
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation addUniqueObject:channel forKey:@"channels"];
     [currentInstallation save];
@@ -138,7 +163,7 @@
 	[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 	//CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
 	//[pr setKeepCallbackAsBool:YES];
-	//[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];	
+	//[self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 }
 
 - (void) _unsubscribe:(NSString *)channel {
@@ -190,6 +215,7 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     // Store the deviceToken in the current installation and save it to Parse.
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation setDeviceTokenFromData:newDeviceToken];
+    currentInstallation.channels = @[ @"global" ];
     [currentInstallation saveInBackground];
 }
 

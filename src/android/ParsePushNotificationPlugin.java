@@ -112,27 +112,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 	}
 
 	private void setUp(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-		//Activity activity=cordova.getActivity();
-		//webView
-		//args.length()
-		//args.getString(0)
-		//args.getString(1)
-		//args.getInt(0)
-		//args.getInt(1)
-		//args.getBoolean(0)
-		//args.getBoolean(1)
-		//JSONObject json = args.optJSONObject(0);
-		//json.optString("adUnit")
-		//json.optString("adUnitFullScreen")
-		//JSONObject inJson = json.optJSONObject("inJson");
-		//final String adUnit = args.getString(0);
-		//final String adUnitFullScreen = args.getString(1);
-		//final boolean isOverlap = args.getBoolean(2);
-		//final boolean isTest = args.getBoolean(3);
-		//Log.d(LOG_TAG, String.format("%s", adUnit));
-		//Log.d(LOG_TAG, String.format("%s", adUnitFullScreen));
-		//Log.d(LOG_TAG, String.format("%b", isOverlap));
-		//Log.d(LOG_TAG, String.format("%b", isTest));
+
 		final String applicationId = args.getString(0);
 		final String clientKey = args.getString(1);
 		Log.d(LOG_TAG, String.format("%s", applicationId));
@@ -148,40 +128,23 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 		});
 	}
 
-/*
-	private void registerAsPushNotificationClient(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-		cordova.getActivity().runOnUiThread(new Runnable(){
-			@Override
-			public void run() {
-				_registerAsPushNotificationClient();
-			}
-		});
-	}
-
-	private void unregister(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-		cordova.getActivity().runOnUiThread(new Runnable(){
-			@Override
-			public void run() {
-				_unregister();
-			}
-		});
-	}
-*/
     private void getDeviceToken() {
         String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
-        String objectId = ParseInstallation.getCurrentInstallation().getObjectId();
+        String deviceToken = ParseInstallation.getCurrentInstallation().get("deviceToken");
 
         PluginResult pr = new PluginResult(PluginResult.Status.OK, "onUnsubscribeSucceeded");
         pr.setKeepCallback(true);
         callbackContextKeepCallback.sendPluginResult(pr);
 
         String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
-        String objectId = ParseInstallation.getCurrentInstallation().getObjectId();
+        String deviceToken = ParseInstallation.getCurrentInstallation().getObjectId();
 
-        final JSONObject deviceInfo = new JSONObject();
-        deviceInfo.put("getTokenCall", true);
-        deviceInfo.put("installationId", installationId);
-        deviceInfo.put("objectId", objectId);
+        JSONObject mutableDeviceInfo = new JSONObject();
+        mutableDeviceInfo.put("getTokenCall", true);
+        mutableDeviceInfo.put("installationId", installationId);
+        mutableDeviceInfo.put("deviceToken", objectId);
+
+        final JSONObject deviceInfo = new JSONObject(mutableDeviceInfo.toString());
 
         cordova.getActivity().runOnUiThread(new Runnable(){
             @Override
@@ -251,44 +214,6 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 			callbackContextKeepCallback.sendPluginResult(pr);
         }
     }
-
-/*
-    private void _registerAsPushNotificationClient() {
-       try {
-           	Parse.initialize(cordova.getActivity(), applicationId, clientKey);
-    	   	ParseInstallation.getCurrentInstallation().save();
-
-			PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRegisterAsPushNotificationClientSucceeded");
-			pr.setKeepCallback(true);
-			callbackContextKeepCallback.sendPluginResult(pr);
-			//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
-			//pr.setKeepCallback(true);
-			//callbackContextKeepCallback.sendPluginResult(pr);
-        }
-        catch (ParseException e) {
-			//PluginResult pr = new PluginResult(PluginResult.Status.OK, "onRegisterAsPushNotificationClientSucceeded");
-			//pr.setKeepCallback(true);
-			//callbackContextKeepCallback.sendPluginResult(pr);
-			PluginResult pr = new PluginResult(PluginResult.Status.ERROR, "onRegisterAsPushNotificationClientFailed");
-			pr.setKeepCallback(true);
-			callbackContextKeepCallback.sendPluginResult(pr);
-        }
-
-		//String installationId = ParseInstallation.getCurrentInstallation().getInstallationId();
-		//String objectId = ParseInstallation.getCurrentInstallation().getObjectId();
-		//Set<String> subscriptions = PushService.getSubscriptions(cordova.getActivity());
-		//subscriptions.toString();
-    }
-
-    private void _unregister() {
-		PluginResult pr = new PluginResult(PluginResult.Status.OK, "onUnregisterSucceeded");
-		pr.setKeepCallback(true);
-		callbackContextKeepCallback.sendPluginResult(pr);
-		//PluginResult pr = new PluginResult(PluginResult.Status.ERROR);
-		//pr.setKeepCallback(true);
-		//callbackContextKeepCallback.sendPluginResult(pr);
-    }
-*/
 
     private void _subscribeToChannel(String channel) {
         ParsePush.subscribeInBackground(channel, new SaveCallback() {
