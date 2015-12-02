@@ -129,7 +129,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 	}
 
     private void getDeviceToken(String action, JSONArray args, CallbackContext callbackContext) {
-        String deviceToken = ParseInstallation.getCurrentInstallation().getString("deviceToken");
+        final String deviceToken = ParseInstallation.getCurrentInstallation().getString("deviceToken");
 
         try {
             final JSONObject deviceInfo = new JSONObject();
@@ -141,7 +141,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable(){
                 @Override
                 public void run() {
-                    _getDeviceToken(deviceToken);
+                    _getDeviceToken(deviceInfo);
                 }
             });
         } catch (JSONException e) {
@@ -149,8 +149,8 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
         }
     }
 
-    private void _getDeviceToken(JSONObject deviceToken) {
-        PluginResult pr = new PluginResult(PluginResult.Status.OK, deviceToken);
+    private void _getDeviceToken(JSONObject deviceInfo) {
+        PluginResult pr = new PluginResult(PluginResult.Status.OK, deviceInfo);
         pr.setKeepCallback(true);
         callbackContextKeepCallback.sendPluginResult(pr);
     }
