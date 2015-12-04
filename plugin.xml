@@ -103,14 +103,7 @@
         <framework src="libsqlite3.dylib" />
 
         <framework src="src/ios/Parse.framework" custom="true" />
-        <!--
-        //cause build error
-        //http://stackoverflow.com/questions/15457136/parse-for-ios-errors-when-trying-to-run-the-app
-        <framework src="src/ios/ParseCrashReporting.framework" custom="true" />
-        <framework src="src/ios/ParseFacebookUtils.framework" custom="true" />
-        <framework src="src/ios/ParseFacebookUtilsV4.framework" custom="true" />
-        <framework src="src/ios/ParseUI.framework" custom="true" />
-        -->
+
     </platform>
 
 	<!-- wp8 -->
