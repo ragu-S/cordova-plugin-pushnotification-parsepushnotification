@@ -102,7 +102,6 @@
         <framework src="libz.dylib" />
         <framework src="libsqlite3.dylib" />
 
-        <framework src="src/ios/Bolts.framework" custom="true" />
         <framework src="src/ios/Parse.framework" custom="true" />
         <!--
         //cause build error
