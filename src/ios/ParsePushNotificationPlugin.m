@@ -62,6 +62,14 @@
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *deviceToken = [currentInstallation deviceToken];
     NSString *installationId = [currentInstallation installationId];
+
+    if (!deviceToken) {
+        deviceToken = @"";
+    }
+    if (!deviceToken) {
+        installationId = @"";
+    }
+
     NSDictionary *deviceInfo = @{
         @"getTokenCall" : @"YES",
         @"installationId" : installationId,
