@@ -17,9 +17,9 @@
 #import <Bolts/BFTask.h>
 #import <Bolts/BFTaskCompletionSource.h>
 
-#if __has_include(<Bolts/BFAppLink.h>) && TARGET_OS_IPHONE && !TARGET_OS_WATCH && !TARGET_OS_TV
-#import <Bolts/BFAppLink.h>
+#if __has_include(<Bolts/BFAppLink.h>) && TARGET_OS_IPHONE
 #import <Bolts/BFAppLinkNavigation.h>
+#import <Bolts/BFAppLink.h>
 #import <Bolts/BFAppLinkResolving.h>
 #import <Bolts/BFAppLinkReturnToRefererController.h>
 #import <Bolts/BFAppLinkReturnToRefererView.h>
@@ -28,8 +28,6 @@
 #import <Bolts/BFURL.h>
 #import <Bolts/BFWebViewAppLinkResolver.h>
 #endif
-
-NS_ASSUME_NONNULL_BEGIN
 
 /*! @abstract 80175001: There were multiple errors. */
 extern NSInteger const kBFMultipleErrorsError;
@@ -43,5 +41,3 @@ extern NSInteger const kBFMultipleErrorsError;
 + (NSString *)version;
 
 @end
-
-NS_ASSUME_NONNULL_END
