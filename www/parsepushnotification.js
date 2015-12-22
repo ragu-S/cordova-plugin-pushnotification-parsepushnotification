@@ -10,12 +10,6 @@ module.exports = {
 						if (self.onRegisterAsPushNotificationClientSucceeded)
 							self.onRegisterAsPushNotificationClientSucceeded();
 					}
-/*
-					else if (result == "onUnregisterSucceeded") {
-						if (self.onUnregisterSucceeded)
-							self.onUnregisterSucceeded();
-					}
-*/
 					else if (result == "onSubscribeToChannelSucceeded") {
 						if (self.onSubscribeToChannelSucceeded)
 							self.onSubscribeToChannelSucceeded();
@@ -42,12 +36,6 @@ module.exports = {
 						if (self.onRegisterAsPushNotificationClientFailed)
 							self.onRegisterAsPushNotificationClientFailed();
 					}
-/*
-					else if (result == "onUnregisterFailed") {
-						if (self.onUnregisterFailed)
-							self.onUnregisterFailed();
-					}
-*/
 					else if (result == "onSubscribeFailed") {
 						if (self.onSubscribeToChannelFailed)
 							self.onSubscribeToChannelFailed();
@@ -57,41 +45,13 @@ module.exports = {
 							self.onUnsubscribeFailed();
 					}
 				}
-				else {
-					//if (result["event"] == "onXXX") {
-					//	//result["message"]
-					//	if (self.onXXX)
-					//		self.onXXX(result);
-					//}
-				}
 			},
             'ParsePushNotificationPlugin',
             'setUp',
             [appId, clientKey]
         );
     },
-/*
-	registerAsPushNotificationClient: function() {
-		var self = this;
-        cordova.exec(
-            null,
-            null,
-            'ParsePushNotificationPlugin',
-            'registerAsPushNotificationClient',
-            []
-        );
-    },
-    unregister: function() {
-		var self = this;
-        cordova.exec(
-            null,
-            null,
-            'ParsePushNotificationPlugin',
-            'unregister',
-            []
-        );
-    },
-*/
+
 	subscribeToChannel: function(channel) {
 		var self = this;
         cordova.exec(

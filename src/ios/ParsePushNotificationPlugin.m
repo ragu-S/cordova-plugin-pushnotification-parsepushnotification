@@ -4,67 +4,11 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 
-@implementation AppDelegate (ParsePushNotificationPlugin)
-NSString const *someKey = @"unique key";
-
-#pragma mark Push Notifications
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-    [currentInstallation setDeviceTokenFromData:deviceToken];
-    [currentInstallation saveInBackground];
-
-    [PFPush subscribeToChannelInBackground:@"" block:^(BOOL succeeded, NSError *error) {
-        if (succeeded) {
-            NSLog(@"ParseStarterProject successfully subscribed to push notifications on the broadcast channel.");
-            //[self _getDeviceToken];
-        } else {
-            NSLog(@"ParseStarterProject failed to subscribe to push notifications on the broadcast channel.");
-        }
-    }];
-}
-
-- (void)setInstance:(ParsePushNotificationPlugin *)instance {
-    if (instance != nil) {
-        objc_setAssociatedObject(self, &someKey, instance, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-}
-- (void) setStringInstance:(NSString *) stringInstance {
-    self.stringInstance = stringInstance;
-}
-
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    NSMutableString* errorMsg = [NSMutableString stringWithString:@""];
-    if (error.code == 3010) {
-        [errorMsg appendString:@"Push notifications are not supported in the iOS Simulator."];
-    } else {
-        // show some alert or otherwise handle the failure to register.
-        [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
-        [errorMsg appendString:error.localizedDescription];
-    }
-
-    //[ParsePushNotificationPlugin parseSetupError: errorMsg];
-}
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    [PFPush handlePush:userInfo];
-    NSLog(@"Received Notification!");
-    //    self.instance.notifications.setObject: forKey:
-    if (application.applicationState == UIApplicationStateInactive) {
-        [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
-    }
-    NSDictionary* dict = [[self.instance getStoredNotifications] copy];
-    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: dict];
-    [pr setKeepCallbackAsBool:YES];
-    [self.instance.commandDelegate sendPluginResult: pr callbackId: self.instance.callbackIdKeepCallback];
-}
-@end
-
 @implementation ParsePushNotificationPlugin
 
 @synthesize callbackIdKeepCallback;
 @synthesize applicationId;
 @synthesize clientKey;
-@synthesize notifications;
 
 - (void)setUp: (CDVInvokedUrlCommand*)command {
     NSString* applicationId = [command.arguments objectAtIndex:0];
@@ -114,9 +58,6 @@ NSString const *someKey = @"unique key";
     [Parse setApplicationId:applicationId clientKey:clientKey];
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation save];
-
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [appDelegate setInstance: self];
 
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onRegisterAsPushNotificationClientSucceeded"];
     [pr setKeepCallbackAsBool:YES];
@@ -200,12 +141,78 @@ NSString const *someKey = @"unique key";
 }
 
 - (NSMutableDictionary *)getStoredNotifications {
+    NSMutableDictionary* notifications = [NSMutableDictionary dictionary];
     [notifications setObject:@"true" forKey:@"notificationReceived"];
     [notifications setObject:@"iOS notification received" forKey:@"dealerNotification"];
     return notifications;
 }
+@end
 
-- (CDVPlugin *) getCommandDelegate {
-    return self.commandDelegate;
+@implementation AppDelegate (ParsePushNotificationPlugin)
+NSString const *someKey = @"instance";
+
+#pragma mark Push Notifications
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    [currentInstallation setDeviceTokenFromData:deviceToken];
+    [currentInstallation saveInBackground];
+
+    [PFPush subscribeToChannelInBackground:@"" block:^(BOOL succeeded, NSError *error) {
+        if (succeeded) {
+            NSLog(@"ParseStarterProject successfully subscribed to push notifications on the broadcast channel.");
+            //[self _getDeviceToken];
+        } else {
+            NSLog(@"ParseStarterProject failed to subscribe to push notifications on the broadcast channel.");
+        }
+    }];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    NSMutableString* errorMsg = [NSMutableString stringWithString:@""];
+    if (error.code == 3010) {
+        [errorMsg appendString:@"Push notifications are not supported in the iOS Simulator."];
+    } else {
+        // show some alert or otherwise handle the failure to register.
+        [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
+        [errorMsg appendString:error.localizedDescription];
+    }
+
+    //[ParsePushNotificationPlugin parseSetupError: errorMsg];
+}
+- (NSString *)stringOutputForDictionary:(NSDictionary *)inputDict {
+    NSMutableString * outputString = [NSMutableString stringWithCapacity:256];
+
+    NSArray * allKeys = [inputDict allKeys];
+
+    for (NSString * key in allKeys) {
+        if ([[inputDict objectForKey:key] isKindOfClass:[NSDictionary class]]) {
+            [outputString appendString: [self stringOutputForDictionary: (NSDictionary *)inputDict]];
+        }
+        else {
+            [outputString appendString: key];
+            [outputString appendString: @": "];
+            [outputString appendString: [[inputDict objectForKey: key] description]];
+        }
+        [outputString appendString: @"\n"];
+    }
+
+    return [NSString stringWithString: outputString];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSLog(@"Received Notification!");
+    if (application.applicationState == UIApplicationStateInactive) {
+        [PFPush handlePush:userInfo];
+        [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+    }
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    ParsePushNotificationPlugin* plug = [appDelegate.viewController.pluginObjects objectForKey:@"ParsePushNotificationPlugin"];
+    NSMutableDictionary* mutableDict = [plug getStoredNotifications];
+    NSDictionary* dict = [NSDictionary dictionaryWithDictionary:mutableDict];
+
+    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: dict];
+    [pr setKeepCallbackAsBool:YES];
+    [plug.commandDelegate sendPluginResult: pr callbackId: plug.callbackIdKeepCallback];
+
 }
 @end
