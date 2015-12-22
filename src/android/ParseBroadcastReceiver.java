@@ -22,4 +22,12 @@ public class ParseBroadcastReceiver extends BroadcastReceiver {
 			ParseInstallation.getCurrentInstallation().saveInBackground();
 		}
     }
+
+    //@Override
+    //public Class<? extends Activity>   getActivity(Context context, Intent intent) {}
+
+    /*
+    @Override
+    onPushOpen
+     */
 }

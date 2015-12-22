@@ -30,6 +30,10 @@ module.exports = {
                         if(self.deviceTokenRecieved)
                             self.deviceTokenRecieved(result);
                     }
+                    else if(result["notificationReceived"]) {
+                        if(self.notificationReceived)
+                            self.notificationReceived(result);
+                    }
 				}
 			},
 			function (error) {
@@ -110,10 +114,7 @@ module.exports = {
     },
 	onRegisterAsPushNotificationClientSucceeded: null,
 	onRegisterAsPushNotificationClientFailed: null,
-/*
-	onUnregisterSucceeded: null,
-	onUnregisterFailed: null,
-*/
+    onNotificationReceived: null,
     deviceTokenRecieved: null,
 	onSubscribeToChannelSucceeded: null,
 	onSubscribeToChannelFailed: null,
