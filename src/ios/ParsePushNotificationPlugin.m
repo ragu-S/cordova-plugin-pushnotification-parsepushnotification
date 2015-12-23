@@ -46,9 +46,9 @@
 }
 
 - (void) getNotifications: (CDVInvokedUrlCommand *)command {
-    [self.commandDelegate runInBackground:^{
-        [self _getStoredNotifications];
-    }];
+//    [self.commandDelegate runInBackground:^{
+    
+//    }];
 }
 
 - (void) _setUp:(NSString *)applicationId aClientKey:(NSString *)clientKey {
@@ -58,7 +58,7 @@
     [Parse setApplicationId:applicationId clientKey:clientKey];
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation save];
-
+    
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onRegisterAsPushNotificationClientSucceeded"];
     [pr setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
@@ -122,7 +122,7 @@
     [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
 }
 
-- (void) _getStoredNotifications {
+- (void) _getStoredNotifications:(NSDictionary *) userInfo {
     NSDictionary* dict = [self.getStoredNotifications copy];
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: dict];
     [pr setKeepCallbackAsBool:YES];
@@ -156,7 +156,7 @@ NSString const *someKey = @"instance";
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation setDeviceTokenFromData:deviceToken];
     [currentInstallation saveInBackground];
-
+    
     [PFPush subscribeToChannelInBackground:@"" block:^(BOOL succeeded, NSError *error) {
         if (succeeded) {
             NSLog(@"ParseStarterProject successfully subscribed to push notifications on the broadcast channel.");
@@ -176,14 +176,14 @@ NSString const *someKey = @"instance";
         [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
         [errorMsg appendString:error.localizedDescription];
     }
-
+    
     //[ParsePushNotificationPlugin parseSetupError: errorMsg];
 }
 - (NSString *)stringOutputForDictionary:(NSDictionary *)inputDict {
     NSMutableString * outputString = [NSMutableString stringWithCapacity:256];
-
+    
     NSArray * allKeys = [inputDict allKeys];
-
+    
     for (NSString * key in allKeys) {
         if ([[inputDict objectForKey:key] isKindOfClass:[NSDictionary class]]) {
             [outputString appendString: [self stringOutputForDictionary: (NSDictionary *)inputDict]];
@@ -195,9 +195,14 @@ NSString const *someKey = @"instance";
         }
         [outputString appendString: @"\n"];
     }
-
+    
     return [NSString stringWithString: outputString];
 }
+
+//- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *) launchOptions {
+//    NSString* results = [self stringOutputForDictionary:launchOptions];
+//    NSLog(results);
+//}
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"Received Notification!");
@@ -205,14 +210,16 @@ NSString const *someKey = @"instance";
         [PFPush handlePush:userInfo];
         [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
     }
+    
+//    NSString* results = [self stringOutputForDictionary:userInfo];
+//    NSLog(results);
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     ParsePushNotificationPlugin* plug = [appDelegate.viewController.pluginObjects objectForKey:@"ParsePushNotificationPlugin"];
-    NSMutableDictionary* mutableDict = [plug getStoredNotifications];
-    NSDictionary* dict = [NSDictionary dictionaryWithDictionary:mutableDict];
-
-    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: dict];
-    [pr setKeepCallbackAsBool:YES];
-    [plug.commandDelegate sendPluginResult: pr callbackId: plug.callbackIdKeepCallback];
-
+//    NSMutableDictionary* mutableDict = [plug getStoredNotifications];
+//    NSDictionary* dict = [NSDictionary dictionaryWithDictionary:mutableDict];
+    
+    [plug.commandDelegate runInBackground:^{
+        [plug _getStoredNotifications: userInfo];
+    }];
 }
 @end
