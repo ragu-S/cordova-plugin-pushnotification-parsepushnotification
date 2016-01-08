@@ -21,8 +21,8 @@ module.exports = {
 				}
 				else {
 					if(result["getTokenCall"]) {
-                        if(self.deviceTokenRecieved)
-                            self.deviceTokenRecieved(result);
+                        if(self.onDeviceTokenReceived)
+                            self.onDeviceTokenReceived(result);
                     }
                     else if(result["notificationReceived"]) {
                         if(self.notificationReceived)
@@ -75,7 +75,7 @@ module.exports = {
 	onRegisterAsPushNotificationClientSucceeded: null,
 	onRegisterAsPushNotificationClientFailed: null,
     onNotificationReceived: null,
-    deviceTokenRecieved: null,
+    onDeviceTokenReceived: null,
 	onSubscribeToChannelSucceeded: null,
 	onSubscribeToChannelFailed: null,
 	onUnsubscribeSucceeded: null,
