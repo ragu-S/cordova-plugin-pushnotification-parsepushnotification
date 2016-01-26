@@ -2,7 +2,11 @@ package com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
+
+import com.parse.Parse;
+import com.parse.ParseInstallation;
 import com.parse.ParsePushBroadcastReceiver;
 
 import org.json.JSONException;
@@ -16,7 +20,7 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
     protected void onPushReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, String.format("%s", "notificationreceived!"));
         Log.d(LOG_TAG, String.format("%s", "end of log"));
-
+        // Android keeps closing application and terminating Parse
         if (ParsePushNotificationPlugin.destroyed()) {
             SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences("cordova-plugin-pushnotification-parse", Context.MODE_PRIVATE);
             String applicationId = sharedPref.getString("applicationId", "");
