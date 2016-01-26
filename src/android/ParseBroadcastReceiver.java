@@ -17,6 +17,14 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
         Log.d(LOG_TAG, String.format("%s", "notificationreceived!"));
         Log.d(LOG_TAG, String.format("%s", "end of log"));
 
+        if (ParsePushNotificationPlugin.destroyed()) {
+            SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences("cordova-plugin-pushnotification-parse", Context.MODE_PRIVATE);
+            String applicationId = sharedPref.getString("applicationId", "");
+            String clientKey = sharedPref.getString("clientKey", "");
+            Parse.initialize(context.getApplicationContext(), applicationId, clientKey);
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+        }
+
         super.onPushReceive(context, intent);
     }
     @Override
