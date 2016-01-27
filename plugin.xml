@@ -26,13 +26,7 @@
 			<param name="android-package" value="com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParsePushNotificationPlugin" />
 		</feature>
 	</config-file>
-        
-        <source-file src="src/android/Parse-1.9.4.jar" target-dir="libs" />
-	<source-file src="src/android/ParseCrashReporting-1.9.4.jar" target-dir="libs" />
-	<source-file src="src/android/ParseFacebookUtilsV4-1.9.4.jar" target-dir="libs" />
-        <source-file src="src/android/ParsePushNotificationPlugin.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
-        <source-file src="src/android/ParseBroadcastReceiver.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
-	
+
 	<config-file target="AndroidManifest.xml" parent="/manifest">
 		<uses-permission android:name="android.permission.INTERNET" />
 		<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -66,6 +60,14 @@
 			</intent-filter>
 		</receiver>
         </config-file>
+        
+                
+        <source-file src="src/android/Parse-1.9.4.jar" target-dir="libs" />
+	<source-file src="src/android/ParseCrashReporting-1.9.4.jar" target-dir="libs" />
+	<source-file src="src/android/ParseFacebookUtilsV4-1.9.4.jar" target-dir="libs" />
+        <source-file src="src/android/ParsePushNotificationPlugin.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
+        <source-file src="src/android/ParseBroadcastReceiver.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
+	
      </platform>
 
     <!-- ios -->
