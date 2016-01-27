@@ -21,21 +21,38 @@
 
     <!-- android -->
     <platform name="android">
-		<config-file target="res/xml/config.xml" parent="/*">
-			<feature name="ParsePushNotificationPlugin">
-				<param name="android-package" value="com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParsePushNotificationPlugin" />
-			</feature>
-		</config-file>
-
+	<config-file target="res/xml/config.xml" parent="/*">
+		<feature name="ParsePushNotificationPlugin">
+			<param name="android-package" value="com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParsePushNotificationPlugin" />
+		</feature>
+	</config-file>
+        
+        <source-file src="src/android/Parse-1.9.4.jar" target-dir="libs" />
+	<source-file src="src/android/ParseCrashReporting-1.9.4.jar" target-dir="libs" />
+	<source-file src="src/android/ParseFacebookUtilsV4-1.9.4.jar" target-dir="libs" />
+        <source-file src="src/android/ParsePushNotificationPlugin.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
+        <source-file src="src/android/ParseBroadcastReceiver.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
+        
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<service android:name="com.parse.PushService" />
+                <config-file target="AndroidManifest.xml" parent="/manifest">
+			<uses-permission android:name="android.permission.INTERNET" />
+			<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+			<uses-permission android:name="android.permission.WAKE_LOCK" />
+			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+			<uses-permission android:name="android.permission.VIBRATE" />
+			<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+			<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+			<permission android:protectionLevel="signature" android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
+			<uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
+        	</config-file>
             <receiver  android:exported="false" android:name="com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParseBroadcastReceiver">
                 <intent-filter>
-                    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                    
                     <action android:name="com.parse.push.intent.RECEIVE" />
                     <action android:name="com.parse.push.intent.OPEN" />
                     <action android:name="com.parse.push.intent.DELETE" />
-                    <action android:name="android.intent.action.USER_PRESENT" />
+                    
                     <category android:name="$PACKAGE_NAME"/>
                 </intent-filter>
             </receiver>
@@ -47,24 +64,6 @@
 				</intent-filter>
 			</receiver>
         </config-file>
-
-        <config-file target="AndroidManifest.xml" parent="/manifest">
-			<uses-permission android:name="android.permission.INTERNET" />
-			<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-			<uses-permission android:name="android.permission.WAKE_LOCK" />
-			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-			<uses-permission android:name="android.permission.VIBRATE" />
-			<uses-permission android:name="android.permission.GET_ACCOUNTS" />
-			<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-			<permission android:protectionLevel="signature" android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
-			<uses-permission android:name="$PACKAGE_NAME.permission.C2D_MESSAGE" />
-        </config-file>
-
-        <source-file src="src/android/Parse-1.9.4.jar" target-dir="libs" />
-		<source-file src="src/android/ParseCrashReporting-1.9.4.jar" target-dir="libs" />
-		<source-file src="src/android/ParseFacebookUtilsV4-1.9.4.jar" target-dir="libs" />
-        <source-file src="src/android/ParsePushNotificationPlugin.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
-        <source-file src="src/android/ParseBroadcastReceiver.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
      </platform>
 
     <!-- ios -->
