@@ -3,13 +3,13 @@ package com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 
-import com.example.testmustang.MainActivity;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParsePushBroadcastReceiver;
-import android.os.Bundle;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,9 +49,7 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
             }
             else {
                 Log.d("NOTIFICATION", extras.toString());
-                // intent = new Intent(context, MainActivity.class);
-                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                // context.startActivity(intent);
+
                 Intent notificationIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
                 Bundle bundle = intent.getExtras();
                 bundle.putString("com.parse.Data", extras.toString());
