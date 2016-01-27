@@ -168,9 +168,13 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
     private void _setUp(String appId, String clientKey) {
         this.applicationId = appId;
         this.clientKey = clientKey;
-
+        PluginResult pr;
        try {
-            PluginResult pr;
+            
+            // In case it was initialized prior and not destroyed
+           if(!destroyed) {
+               Parse.initialize(cordova.getActivity(), applicationId, clientKey);
+           }
             Parse.initialize(cordova.getActivity(), applicationId, clientKey);
             ParseInstallation.getCurrentInstallation().save();
 
@@ -186,7 +190,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
             callbackContextKeepCallback.sendPluginResult(pr);
         }
         catch (ParseException e) {
-            PluginResult pr = new PluginResult(PluginResult.Status.ERROR, "onRegisterAsPushNotificationClientFailed");
+            pr = new PluginResult(PluginResult.Status.ERROR, "onRegisterAsPushNotificationClientFailed");
             pr.setKeepCallback(true);
             callbackContextKeepCallback.sendPluginResult(pr);
         }
