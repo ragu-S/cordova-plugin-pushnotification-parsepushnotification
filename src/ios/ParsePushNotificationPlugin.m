@@ -47,8 +47,12 @@
 
 - (void) getNotifications: (CDVInvokedUrlCommand *)command {
 //    [self.commandDelegate runInBackground:^{
-    
+
 //    }];
+}
+
+- (void)registerForNotificationCBs: (CDVInvokedUrlCommand*)command {
+
 }
 
 - (void) _setUp:(NSString *)applicationId aClientKey:(NSString *)clientKey {
@@ -58,7 +62,7 @@
     [Parse setApplicationId:applicationId clientKey:clientKey];
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation save];
-    
+
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onRegisterAsPushNotificationClientSucceeded"];
     [pr setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
@@ -123,8 +127,12 @@
 }
 
 - (void) _getStoredNotifications:(NSDictionary *) userInfo {
-    NSDictionary* dict = [self.getStoredNotifications copy];
-    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: dict];
+//    NSDictionary* dict = [self.getStoredNotifications copy];
+    NSMutableDictionary* notifications = [userInfo mutableCopy];
+    [notifications setObject:@"true" forKey:@"notificationReceived"];
+    // [notifications setObject:@"iOS notification received" forKey:@"dealerNotification"];
+
+    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: [NSDictionary dictionaryWithDictionary:notifications]];
     [pr setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult: pr callbackId: self.callbackIdKeepCallback];
 }
@@ -156,7 +164,7 @@ NSString const *someKey = @"instance";
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation setDeviceTokenFromData:deviceToken];
     [currentInstallation saveInBackground];
-    
+
     [PFPush subscribeToChannelInBackground:@"" block:^(BOOL succeeded, NSError *error) {
         if (succeeded) {
             NSLog(@"ParseStarterProject successfully subscribed to push notifications on the broadcast channel.");
@@ -176,14 +184,14 @@ NSString const *someKey = @"instance";
         [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
         [errorMsg appendString:error.localizedDescription];
     }
-    
+
     //[ParsePushNotificationPlugin parseSetupError: errorMsg];
 }
 - (NSString *)stringOutputForDictionary:(NSDictionary *)inputDict {
     NSMutableString * outputString = [NSMutableString stringWithCapacity:256];
-    
+
     NSArray * allKeys = [inputDict allKeys];
-    
+
     for (NSString * key in allKeys) {
         if ([[inputDict objectForKey:key] isKindOfClass:[NSDictionary class]]) {
             [outputString appendString: [self stringOutputForDictionary: (NSDictionary *)inputDict]];
@@ -195,29 +203,21 @@ NSString const *someKey = @"instance";
         }
         [outputString appendString: @"\n"];
     }
-    
+
     return [NSString stringWithString: outputString];
 }
 
-//- (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *) launchOptions {
-//    NSString* results = [self stringOutputForDictionary:launchOptions];
-//    NSLog(results);
-//}
-
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"Received Notification!");
-    if (application.applicationState == UIApplicationStateInactive) {
-        [PFPush handlePush:userInfo];
-        [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
-    }
-    
+
+    [PFPush handlePush:userInfo];
+    [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+}
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler: (void (^)(UIBackgroundFetchResult result))handler {
 //    NSString* results = [self stringOutputForDictionary:userInfo];
-//    NSLog(results);
+    NSLog(@"notification clicked");
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     ParsePushNotificationPlugin* plug = [appDelegate.viewController.pluginObjects objectForKey:@"ParsePushNotificationPlugin"];
-//    NSMutableDictionary* mutableDict = [plug getStoredNotifications];
-//    NSDictionary* dict = [NSDictionary dictionaryWithDictionary:mutableDict];
-    
     [plug.commandDelegate runInBackground:^{
         [plug _getStoredNotifications: userInfo];
     }];
