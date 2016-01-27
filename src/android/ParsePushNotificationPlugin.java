@@ -22,6 +22,14 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
     public static JSONObject receivedNotification = null;
     public static String _appId;
     public static String _clientKey;
+    public static AppState state;
+
+    public enum AppState {
+        INITIALIZED,
+        FOREGROUND,
+        BACKGROUND,
+        DESTROYED
+    }
 
     @Override
     public void pluginInitialize() {
@@ -29,23 +37,29 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 
         // Store this instance that get initiated by Cordova plugin automatically
         selfReference = this;
+
+        state = AppState.INITIALIZED;
     }
 
     @Override
     public void onPause(boolean multitasking) {
+        state = AppState.BACKGROUND;
+
         super.onPause(multitasking);
     }
 
     @Override
     public void onResume(boolean multitasking) {
+        state = AppState.FOREGROUND;
         super.onResume(multitasking);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        //
+        state = AppState.DESTROYED;
         destroyed = true;
+
+        super.onDestroy();
     }
 
     public static boolean destroyed() {
@@ -54,11 +68,10 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-
         if(action.equals("registerForNotificationCBs")) {
             notificationContextKeepCallback = callbackContext;
             if(receivedNotification != null) {
-                notificationReceivedCB(receivedNotification);
+                notificationReceivedCB();
             }
             return true;
         } else if (action.equals("setUp")) {
@@ -86,34 +99,37 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
     }
 
     private void setUp(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        if(receivedNotification != null) {
-            return;
+        if(state == AppState.INITIALIZED) {
+
+            final String applicationId = args.getString(0);
+            final String clientKey = args.getString(1);
+
+            _appId = applicationId;
+            _clientKey = clientKey;
+
+            Log.d(LOG_TAG, String.format("%s", applicationId));
+            Log.d(LOG_TAG, String.format("%s", clientKey));
+
+            callbackContextKeepCallback = callbackContext;
+
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    _setUp(applicationId, clientKey);
+                }
+            });
         }
-
-        final String applicationId = args.getString(0);
-        final String clientKey = args.getString(1);
-
-        _appId = applicationId;
-        _clientKey = clientKey;
-
-        Log.d(LOG_TAG, String.format("%s", applicationId));
-        Log.d(LOG_TAG, String.format("%s", clientKey));
-
-        callbackContextKeepCallback = callbackContext;
-
-        cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _setUp(applicationId, clientKey);
-            }
-        });
+        else {
+            Log.e("NOTIFICATION ERROR", "Setup called again, when App is initialized");
+        }
     }
 
-    public void notificationReceivedCB(final JSONObject notificationExtras) {
+    public void notificationReceivedCB() {
+
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                _deliverNotificationToUser(notificationExtras);
+                _deliverNotificationToUser();
             }
         });
     }
@@ -177,9 +193,9 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 
        try {
            // In case it was initialized prior and not destroyed
-           if(!destroyed) {
-               Parse.initialize(cordova.getActivity(), applicationId, clientKey);
-           }
+
+            Parse.initialize(cordova.getActivity(), applicationId, clientKey);
+
             ParseInstallation.getCurrentInstallation().save();
 
             SharedPreferences sharedPref = cordova.getActivity().getSharedPreferences("cordova-plugin-pushnotification-parse", Context.MODE_PRIVATE);
@@ -201,16 +217,18 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
     }
 
     // Called when user clicks on a notification
-    private void _deliverNotificationToUser(JSONObject notificationInfo) {
-        PluginResult pr = new PluginResult(PluginResult.Status.OK, notificationInfo);
-
-        pr.setKeepCallback(true);
-
+    private void _deliverNotificationToUser() {
         if (notificationContextKeepCallback != null) {
+            PluginResult pr = new PluginResult(PluginResult.Status.OK, receivedNotification);
+
+            pr.setKeepCallback(true);
             notificationContextKeepCallback.sendPluginResult(pr);
 
             // Remove the read notification
             receivedNotification = null;
+        }
+        else {
+            Log.e("NOTIFICATION ERROR", "notification Callback not available");
         }
     }
 
