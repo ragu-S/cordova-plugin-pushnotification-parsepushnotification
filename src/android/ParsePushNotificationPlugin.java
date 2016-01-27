@@ -13,13 +13,15 @@ import android.content.Context;
 
 public class ParsePushNotificationPlugin extends CordovaPlugin {
     private static final String LOG_TAG = "ParsePushNotificationPlugin";
-    private static CallbackContext callbackContextKeepCallback = null;
+    public static CallbackContext callbackContextKeepCallback = null;
     private static CallbackContext notificationContextKeepCallback = null;
     private String applicationId;
     private String clientKey;
     private static boolean destroyed = false;
     public static ParsePushNotificationPlugin selfReference = null;
     public static JSONObject receivedNotification = null;
+    public static String _appId;
+    public static String _clientKey;
 
     @Override
     public void pluginInitialize() {
@@ -90,6 +92,9 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
 
         final String applicationId = args.getString(0);
         final String clientKey = args.getString(1);
+
+        _appId = applicationId;
+        _clientKey = clientKey;
 
         Log.d(LOG_TAG, String.format("%s", applicationId));
         Log.d(LOG_TAG, String.format("%s", clientKey));
@@ -169,13 +174,12 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
         this.applicationId = appId;
         this.clientKey = clientKey;
         PluginResult pr;
+
        try {
-            
-            // In case it was initialized prior and not destroyed
+           // In case it was initialized prior and not destroyed
            if(!destroyed) {
                Parse.initialize(cordova.getActivity(), applicationId, clientKey);
            }
-            Parse.initialize(cordova.getActivity(), applicationId, clientKey);
             ParseInstallation.getCurrentInstallation().save();
 
             SharedPreferences sharedPref = cordova.getActivity().getSharedPreferences("cordova-plugin-pushnotification-parse", Context.MODE_PRIVATE);
@@ -246,4 +250,3 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
         });
     }
 }
-
