@@ -40,12 +40,12 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
             extras.put("notificationReceived", "true");
             ParsePushNotificationPlugin.receivedNotification = extras;
 
-            if(ParsePushNotificationPlugin.state == ParsePushNotificationPlugin.AppState.BACKGROUND || ParsePushNotificationPlugin.state == ParsePushNotificationPlugin.AppState.DESTROYED) {
-                super.onPushOpen(context, intent);
-            }
-            else if(ParsePushNotificationPlugin.state == ParsePushNotificationPlugin.AppState.FOREGROUND) {
+            if(ParsePushNotificationPlugin.state == ParsePushNotificationPlugin.AppState.FOREGROUND) {
                 // Do JS callback in app
                 ParsePushNotificationPlugin.selfReference.notificationReceivedCB();
+            }
+            else {
+                super.onPushOpen(context, intent);
             }
         }
         catch (JSONException e) {
