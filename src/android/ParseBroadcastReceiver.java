@@ -54,7 +54,7 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
                 // context.startActivity(intent);
                 Intent notificationIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
                 Bundle bundle = intent.getExtras();
-                bundle.putString("com.parse.Data", pushData.toString());
+                bundle.putString("com.parse.Data", extras.toString());
                 notificationIntent.putExtras(bundle);
                 context.startActivity(notificationIntent);
 
