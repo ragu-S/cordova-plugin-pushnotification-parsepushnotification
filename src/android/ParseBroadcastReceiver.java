@@ -49,9 +49,14 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
             }
             else {
                 Log.d("NOTIFICATION", extras.toString());
-                intent = new Intent(context, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                context.startActivity(intent);
+                // intent = new Intent(context, MainActivity.class);
+                // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                // context.startActivity(intent);
+                Intent notificationIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+                Bundle bundle = intent.getExtras();
+                bundle.putString("com.parse.Data", pushData.toString());
+                notificationIntent.putExtras(bundle);
+                context.startActivity(notificationIntent);
 
                 ParsePushNotificationPlugin.selfReference.notificationReceivedCB();
             }
