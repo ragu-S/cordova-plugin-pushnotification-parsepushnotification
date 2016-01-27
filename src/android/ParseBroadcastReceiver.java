@@ -15,7 +15,16 @@ import org.json.JSONObject;
 public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
     private static final String LOG_TAG = "ParsePushNotificationPlugin";
     private static ParsePushNotificationPlugin pluginInstance = null;
-
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if(ParsePushNotificationPlugin.callbackContextKeepCallback == null) {
+            SharedPreferences sharedPref = context.getApplicationContext().getSharedPreferences("cordova-plugin-pushnotification-parse", Context.MODE_PRIVATE);
+            String applicationId = sharedPref.getString("applicationId", "");
+            String clientKey = sharedPref.getString("clientKey", "");
+            Parse.initialize(context.getApplicationContext(), applicationId, clientKey);
+        }
+        super.onReceive(context, intent);
+    }
     @Override
     protected void onPushReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, String.format("%s", "notificationreceived!"));
