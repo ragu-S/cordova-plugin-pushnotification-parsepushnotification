@@ -20,7 +20,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
     private static CallbackContext notificationOpenedKeepCB = null;
     private static CallbackContext notificationReceivedKeepCB = null;
 
-    private static boolean destroyed = false;
+    private static boolean destroyed = true;
     public static ParsePushNotificationPlugin selfReference = null;
     public static JSONObject openedNotification = null;
     public static JSONObject receivedNotification = null;
@@ -43,10 +43,13 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
         String applicationId = getStringByKey(app, "parse_app_id");
         String clientKey = getStringByKey(app, "parse_client_key");
 
-        // Need to reset Parse settings
-        Parse.initialize(app, applicationId, clientKey);
+        // Need to set Parse settings
+        if(destroyed()) {
+            Parse.initialize(app, applicationId, clientKey);
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+        }
 
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        destroyed = false;
     }
 
     private static String getStringByKey(Application app, String key) {
