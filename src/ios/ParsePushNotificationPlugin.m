@@ -7,23 +7,28 @@
 @implementation ParsePushNotificationPlugin
 
 @synthesize callbackIdKeepCallback;
-@synthesize applicationId;
-@synthesize clientKey;
+@synthesize notificationRecievedCb;
+@synthesize notificationOpenedCb;
 
-- (void)setUp: (CDVInvokedUrlCommand*)command {
-    NSString* applicationId = [command.arguments objectAtIndex:0];
-    NSString* clientKey = [command.arguments objectAtIndex:1];
-
-    self.callbackIdKeepCallback = command.callbackId;
-
-    [self.commandDelegate runInBackground:^{
-        [self _setUp:applicationId aClientKey:clientKey];
-    }];
+- (void) pluginInitialize {
+    NSLog(@"%@", @"Plugin initalized");
+    
+    NSString * appId  = [[NSBundle mainBundle].infoDictionary objectForKey:@"parse_app_id"];
+    NSString * clientKey  = [[NSBundle mainBundle].infoDictionary objectForKey:@"parse_client_key"];
+    
+    if (appId.length == 0 || clientKey.length == 0) {
+        NSLog(@"%@", @"Error! appId or clientKey not found");
+        return;
+    }
+    
+    [Parse setApplicationId:appId clientKey:clientKey];
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    [currentInstallation save];
 }
 
 - (void)getDeviceToken: (CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        [self _getDeviceToken];
+        [self _getDeviceToken: command.callbackId];
     }];
 }
 
@@ -32,7 +37,7 @@
     NSLog(@"%@", channel);
 
     [self.commandDelegate runInBackground:^{
-        [self _subscribeToChannel:channel];
+        [self _subscribeToChannel: channel callbackId:command.callbackId];
     }];
 }
 
@@ -41,58 +46,42 @@
     NSLog(@"%@", channel);
 
     [self.commandDelegate runInBackground:^{
-        [self _unsubscribe:channel];
+        [self _unsubscribe:channel callbackId:command.callbackId];
     }];
 }
 
-- (void) getNotifications: (CDVInvokedUrlCommand *)command {
-//    [self.commandDelegate runInBackground:^{
-
-//    }];
+- (void) onNotificationReceived: (CDVInvokedUrlCommand *)command {
+    self.notificationRecievedCb = command.callbackId;
+    
 }
-
-- (void)registerForNotificationCBs: (CDVInvokedUrlCommand*)command {
-
+- (void) onNotificationOpened: (CDVInvokedUrlCommand *)command {
+    self.notificationOpenedCb = command.callbackId;
+    
 }
-
-- (void) _setUp:(NSString *)applicationId aClientKey:(NSString *)clientKey {
-    self.applicationId = applicationId;
-    self.clientKey = clientKey;
-
-    [Parse setApplicationId:applicationId clientKey:clientKey];
-    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-    [currentInstallation save];
-
-    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onRegisterAsPushNotificationClientSucceeded"];
-    [pr setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
-}
-
-- (void) _getDeviceToken {
+- (void) _getDeviceToken: (NSString *) callbackId {
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     NSString *deviceToken = [currentInstallation deviceToken];
-    NSString *installationId = [currentInstallation installationId];
-
+    CDVPluginResult* pr;
+    
     if (!deviceToken) {
         deviceToken = @"";
+        
+        pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"Error unable to find device token, check if certificate or provisioning profile is setup correctly"];
     }
-    if (!deviceToken) {
-        installationId = @"";
+    else {
+        
+        NSDictionary *deviceInfo = @{
+            @"getTokenCall" : @"YES",
+            @"deviceToken" : deviceToken,
+        };
+        
+        pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deviceInfo];
     }
-
-    NSDictionary *deviceInfo = @{
-        @"getTokenCall" : @"YES",
-        @"installationId" : installationId,
-        @"deviceToken" : deviceToken,
-    };
-
-    //NSString *str = [NSString stringWithFormat:@"Device Token=%@",deviceToken];
-    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deviceInfo];
-    [pr setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
+    
+    [self.commandDelegate sendPluginResult:pr callbackId:callbackId];
 }
 
-- (void) _subscribeToChannel:(NSString *)channel {
+- (void) _subscribeToChannel:(NSString *)channel callbackId: (NSString *) callbackId {
     // Register for Push Notitications iOS 8
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
@@ -112,47 +101,39 @@
     [currentInstallation save];
 
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onSubscribeToChannelSucceeded"];
-    [pr setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
+
+    [self.commandDelegate sendPluginResult:pr callbackId: callbackId];
 }
 
-- (void) _unsubscribe:(NSString *)channel {
+- (void) _unsubscribe:(NSString *)channel callbackId: (NSString *) callbackId {
     PFInstallation *currentInstallation = [PFInstallation currentInstallation];
     [currentInstallation removeObject:channel forKey:@"channels"];
     [currentInstallation save];
 
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onUnsubscribeSucceeded"];
     [pr setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
+    [self.commandDelegate sendPluginResult:pr callbackId:callbackId];
 }
 
-- (void) _getStoredNotifications:(NSDictionary *) userInfo {
-//    NSDictionary* dict = [self.getStoredNotifications copy];
-    NSMutableDictionary* notifications = [userInfo mutableCopy];
-    [notifications setObject:@"true" forKey:@"notificationReceived"];
-    // [notifications setObject:@"iOS notification received" forKey:@"dealerNotification"];
+- (void) _notificationOpened:(NSDictionary *) notificationData applicationState: (NSString *) appState {
+    NSMutableDictionary* notifications = [notificationData mutableCopy];
+    [notifications setObject:@"true" forKey:@"notificationOpened"];
+    [notifications setObject:appState forKey:@"applicationState"];
 
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: [NSDictionary dictionaryWithDictionary:notifications]];
-    [pr setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult: pr callbackId: self.callbackIdKeepCallback];
+    
+    [self.commandDelegate sendPluginResult: pr callbackId: self.notificationOpenedCb];
 }
 
-- (void) parseSetupError:(NSString *)msg {
-    NSDictionary *errorMessage = @{
-     @"parseErrorMsg" : @"YES",
-     @"message" : msg
-    };
-
-    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:errorMessage];
+- (void) _notificationReceived:(NSDictionary*) notificationData applicationState: (NSString *) appState {
+    NSMutableDictionary* notifications = [notificationData mutableCopy];
+    [notifications setObject:appState forKey:@"applicationState"];
+    
+    CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: [NSDictionary dictionaryWithDictionary:notifications]];
+    
     [pr setKeepCallbackAsBool:YES];
-    [self.commandDelegate sendPluginResult:pr callbackId:callbackIdKeepCallback];
-}
-
-- (NSMutableDictionary *)getStoredNotifications {
-    NSMutableDictionary* notifications = [NSMutableDictionary dictionary];
-    [notifications setObject:@"true" forKey:@"notificationReceived"];
-    [notifications setObject:@"iOS notification received" forKey:@"dealerNotification"];
-    return notifications;
+    
+    [self.commandDelegate sendPluginResult: pr callbackId: self.notificationOpenedCb];
 }
 @end
 
@@ -168,7 +149,6 @@ NSString const *someKey = @"instance";
     [PFPush subscribeToChannelInBackground:@"" block:^(BOOL succeeded, NSError *error) {
         if (succeeded) {
             NSLog(@"ParseStarterProject successfully subscribed to push notifications on the broadcast channel.");
-            //[self _getDeviceToken];
         } else {
             NSLog(@"ParseStarterProject failed to subscribe to push notifications on the broadcast channel.");
         }
@@ -184,42 +164,46 @@ NSString const *someKey = @"instance";
         [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
         [errorMsg appendString:error.localizedDescription];
     }
-
-    //[ParsePushNotificationPlugin parseSetupError: errorMsg];
-}
-- (NSString *)stringOutputForDictionary:(NSDictionary *)inputDict {
-    NSMutableString * outputString = [NSMutableString stringWithCapacity:256];
-
-    NSArray * allKeys = [inputDict allKeys];
-
-    for (NSString * key in allKeys) {
-        if ([[inputDict objectForKey:key] isKindOfClass:[NSDictionary class]]) {
-            [outputString appendString: [self stringOutputForDictionary: (NSDictionary *)inputDict]];
-        }
-        else {
-            [outputString appendString: key];
-            [outputString appendString: @": "];
-            [outputString appendString: [[inputDict objectForKey: key] description]];
-        }
-        [outputString appendString: @"\n"];
-    }
-
-    return [NSString stringWithString: outputString];
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    NSLog(@"Received Notification!");
-
+    NSLog(@"Received Notification in background!");
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    NSString* appState;
+    if (state == UIApplicationStateBackground || state == UIApplicationStateInactive) {
+        appState = @"background";
+    }
+    else {
+        appState = @"foreground";
+    }
+    
     [PFPush handlePush:userInfo];
     [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
-}
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler: (void (^)(UIBackgroundFetchResult result))handler {
-//    NSString* results = [self stringOutputForDictionary:userInfo];
-    NSLog(@"notification clicked");
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     ParsePushNotificationPlugin* plug = [appDelegate.viewController.pluginObjects objectForKey:@"ParsePushNotificationPlugin"];
+    
     [plug.commandDelegate runInBackground:^{
-        [plug _getStoredNotifications: userInfo];
+        [plug _notificationReceived: userInfo applicationState:appState];
+    }];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler: (void (^)(UIBackgroundFetchResult result))handler {
+    NSLog(@"notification clicked");
+    NSString* appState;
+    
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateBackground || state == UIApplicationStateInactive) {
+        appState = @"background";
+    }
+    else {
+        appState = @"foreground";
+    }
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    ParsePushNotificationPlugin* plug = [appDelegate.viewController.pluginObjects objectForKey:@"ParsePushNotificationPlugin"];
+    
+    [plug.commandDelegate runInBackground:^{
+        [plug _notificationOpened: userInfo applicationState:appState];
     }];
 }
 @end
