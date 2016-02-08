@@ -43,13 +43,14 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
         String applicationId = getStringByKey(app, "parse_app_id");
         String clientKey = getStringByKey(app, "parse_client_key");
 
-        // Need to set Parse settings
-        if(destroyed()) {
+        try {
+            // Need to set Parse settings
             Parse.initialize(app, applicationId, clientKey);
             ParseInstallation.getCurrentInstallation().saveInBackground();
         }
-
-        destroyed = false;
+        catch(IllegalStateException e) {
+            Log.e("Illegal Exception", "Parse initialized already");
+        }
     }
 
     private static String getStringByKey(Application app, String key) {
