@@ -122,6 +122,8 @@
 
     CDVPluginResult* pr = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: [NSDictionary dictionaryWithDictionary:notifications]];
     
+    [pr setKeepCallbackAsBool:YES];
+    
     [self.commandDelegate sendPluginResult: pr callbackId: self.notificationOpenedCb];
 }
 
@@ -133,7 +135,7 @@
     
     [pr setKeepCallbackAsBool:YES];
     
-    [self.commandDelegate sendPluginResult: pr callbackId: self.notificationOpenedCb];
+    [self.commandDelegate sendPluginResult: pr callbackId: self.notificationRecievedCb];
 }
 @end
 
@@ -187,7 +189,7 @@ NSString const *someKey = @"instance";
     }];
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler: (void (^)(UIBackgroundFetchResult result))handler {
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler: (void (^)(UIBackgroundFetchResult result))completionHandler {
     NSLog(@"notification clicked");
     NSString* appState;
     
@@ -205,5 +207,7 @@ NSString const *someKey = @"instance";
     [plug.commandDelegate runInBackground:^{
         [plug _notificationOpened: userInfo applicationState:appState];
     }];
+    
+    completionHandler(UIBackgroundFetchResultNewData);
 }
 @end
