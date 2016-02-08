@@ -82,6 +82,15 @@
 
     <!-- ios -->
     <platform name="ios">
+    	<preference name="APP_ID" />
+        <preference name="CLIENT_KEY" />
+        <config-file target="*-Info.plist" parent="parse_app_id">
+            <string>$APP_ID</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="parse_client_key">
+            <string>$CLIENT_KEY</string>
+        </config-file>
+        
         <config-file target="config.xml" parent="/*">
             <feature name="ParsePushNotificationPlugin">
                 <param name="ios-package" value="ParsePushNotificationPlugin" />
