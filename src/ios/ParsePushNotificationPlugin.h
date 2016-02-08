@@ -4,17 +4,14 @@
 @interface ParsePushNotificationPlugin: CDVPlugin
 
 @property NSString *callbackIdKeepCallback;
-@property NSString *applicationId;
-@property NSString *clientKey;
+@property NSString *notificationRecievedCb;
+@property NSString *notificationOpenedCb;
 
-- (void)setUp: (CDVInvokedUrlCommand*)command;
 - (void)getDeviceToken: (CDVInvokedUrlCommand *)command;
 - (void)subscribeToChannel: (CDVInvokedUrlCommand *)command;
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command;
-- (void)parseSetupError: (NSString *) msg;
-- (NSMutableDictionary *)getStoredNotifications;
-- (void)readNotifications: (NSDictionary *)notifications;
-- (void)performNotificationCB;
+- (void) onNotificationReceived: (CDVInvokedUrlCommand *)command;
+- (void) onNotificationOpened: (CDVInvokedUrlCommand *)command;
 @end
 
 @interface AppDelegate (ParsePushNotificationPlugin)
