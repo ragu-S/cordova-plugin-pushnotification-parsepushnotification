@@ -140,7 +140,6 @@
 @end
 
 @implementation AppDelegate (ParsePushNotificationPlugin)
-NSString const *someKey = @"instance";
 
 #pragma mark Push Notifications
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
