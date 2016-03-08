@@ -165,6 +165,7 @@
         [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
         [errorMsg appendString:error.localizedDescription];
     }
+    NSLog(errorMsg);
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
