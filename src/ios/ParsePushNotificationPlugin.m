@@ -155,6 +155,8 @@
         }
     }];
 }
+- (void)application:(UIApplication *)application
+didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     NSMutableString* errorMsg = [NSMutableString stringWithString:@""];
@@ -163,7 +165,7 @@
     } else {
         // show some alert or otherwise handle the failure to register.
         [errorMsg appendString:@"application:didFailToRegisterForRemoteNotificationsWithError: %@"];
-        [errorMsg appendString:error.localizedDescription];
+        // [errorMsg appendString:error.localizedDescription];
     }
     NSLog(errorMsg);
 }
