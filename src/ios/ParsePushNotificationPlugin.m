@@ -155,8 +155,6 @@
         }
     }];
 }
-- (void)application:(UIApplication *)application
-didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     NSMutableString* errorMsg = [NSMutableString stringWithString:@""];
