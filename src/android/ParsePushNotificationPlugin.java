@@ -181,7 +181,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
             deviceInfo.put("getTokenCall", true);
 
             deviceInfo.put("deviceToken", deviceToken);
-            Log.d("DEVICE_TOKEN", deviceToken);
+            
             cordova.getActivity().runOnUiThread(new Runnable(){
                 @Override
                 public void run() {
