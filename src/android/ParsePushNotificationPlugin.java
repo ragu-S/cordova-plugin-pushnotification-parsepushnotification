@@ -189,7 +189,11 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
                 }
             });
         } catch (JSONException e) {
-            Log.d("DEBUG", e.toString());
+            String msg = e.toString();
+            if(msg == null) {
+                msg = "Unknown exception";
+            }
+            Log.d("DEBUG", msg);
         }
     }
 
