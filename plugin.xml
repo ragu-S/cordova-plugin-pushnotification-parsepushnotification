@@ -52,8 +52,14 @@
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
 		<service android:name="com.parse.PushService" />
-		
-		<receiver  android:exported="false" android:name="com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParseBroadcastReceiver">
+		<receiver android:name="com.parse.GcmBroadcastReceiver"	android:permission="com.google.android.c2dm.permission.SEND">
+			<intent-filter>
+				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+				<category android:name="$PACKAGE_NAME" />
+			</intent-filter>
+		</receiver>
+		<receiver  android:exported="true" android:name="com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParseBroadcastReceiver">
 			<intent-filter>
 			
 				<action android:name="com.parse.push.intent.RECEIVE" />
@@ -61,13 +67,6 @@
 				<action android:name="com.parse.push.intent.DELETE" />
 				
 				<category android:name="$PACKAGE_NAME"/>
-			</intent-filter>
-		</receiver>
-		<receiver android:name="com.parse.GcmBroadcastReceiver"	android:permission="com.google.android.c2dm.permission.SEND">
-			<intent-filter>
-				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
-				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-				<category android:name="$PACKAGE_NAME" />
 			</intent-filter>
 		</receiver>
         </config-file>
