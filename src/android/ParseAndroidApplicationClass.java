@@ -3,6 +3,7 @@ package com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.
 import android.app.Application;
 import android.util.Log;
 import com.parse.Parse;
+import com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParsePushNotificationPlugin;
 import com.parse.ParseInstallation;
 
 /**
