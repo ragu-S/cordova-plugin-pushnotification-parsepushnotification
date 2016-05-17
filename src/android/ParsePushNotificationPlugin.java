@@ -37,23 +37,9 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-
-        Application app = cordova.getActivity().getApplication();
-
-        String applicationId = getStringByKey(app, "parse_app_id");
-        String clientKey = getStringByKey(app, "parse_client_key");
-
-        try {
-            // Need to set Parse settings
-            Parse.initialize(app, applicationId, clientKey);
-            ParseInstallation.getCurrentInstallation().saveInBackground();
-        }
-        catch(IllegalStateException e) {
-            Log.e("Illegal Exception", "Parse initialized already");
-        }
     }
 
-    private static String getStringByKey(Application app, String key) {
+    public static String getStringByKey(Application app, String key) {
         int resourceId = app.getResources().getIdentifier(key, "string", app.getPackageName());
         return app.getString(resourceId);
     }
@@ -181,7 +167,7 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
             deviceInfo.put("getTokenCall", true);
 
             deviceInfo.put("deviceToken", deviceToken);
-            
+
             cordova.getActivity().runOnUiThread(new Runnable(){
                 @Override
                 public void run() {
