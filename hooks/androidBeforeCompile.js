@@ -21,5 +21,5 @@ module.exports = function(ctx) {
         doc.getroot().find('./application').attrib['android:name'] = 'com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParseAndroidApplicationClass';
     }
     //write the manifest file
-    fs.writeFileSync(projectFolder, packageName, 'utf-8');
+    fs.writeFileSync(manifestPath, doc.write({indent: 4}), 'utf-8');
 };
