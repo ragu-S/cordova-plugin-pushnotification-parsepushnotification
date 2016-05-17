@@ -75,6 +75,7 @@
         <source-file src="src/android/Parse-1.9.4.jar" target-dir="libs" />
 	<source-file src="src/android/ParseCrashReporting-1.9.4.jar" target-dir="libs" />
 	<source-file src="src/android/ParseFacebookUtilsV4-1.9.4.jar" target-dir="libs" />
+        <source-file src="src/android/ParseAndroidApplicationClass.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
         <source-file src="src/android/ParsePushNotificationPlugin.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
         <source-file src="src/android/ParseBroadcastReceiver.java" target-dir="src/com/cranberrygame/cordova/plugin/pushnotification/parsepushnotification" />
 
