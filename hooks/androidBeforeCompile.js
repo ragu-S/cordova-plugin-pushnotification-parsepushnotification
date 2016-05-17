@@ -16,12 +16,10 @@ module.exports = function(ctx) {
         throw new Error(manifestPath + ' has incorrect root node name (expected "manifest")');
     }
 
-    //adds the tools namespace to the root node
-    // doc.getroot().attrib['xmlns:tools'] = 'http://schemas.android.com/tools';
-    //add tools:replace in the application node
-    // doc.getroot().find('./application').attrib['android:name'] = '';
     var packageName = doc.getroot().attrib['package'];
-    console.log("ANDROID PACKAGE NAME*** = " + packageName);
+    if(packageName) {
+        doc.getroot().find('./application').attrib['android:name'] = 'com.cranberrygame.cordova.plugin.pushnotification.parsepushnotification.ParseAndroidApplicationClass';
+    }
     //write the manifest file
-    // fs.writeFileSync(projectFolder, packageName, 'utf-8');
+    fs.writeFileSync(projectFolder, packageName, 'utf-8');
 };
