@@ -17,20 +17,25 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
         Log.d(LOG_TAG, String.format("%s", "notificationreceived!"));
         Log.d(LOG_TAG, String.format("%s", "end of log"));
 
-        // Android keeps closing application and terminating Parse
         try {
             JSONObject extras = new JSONObject(intent.getStringExtra("com.parse.Data"));
 
             if(ParsePushNotificationPlugin.state == ParsePushNotificationPlugin.AppState.FOREGROUND) {
                 extras.put("applicationState", "foreground");
+                if(ParsePushNotificationPlugin.selfReference != null) {
+                    // Do JS callback in app
+                    ParsePushNotificationPlugin.selfReference.notificationReceivedCB(extras);
+                }
             }
             else {
                 extras.put("applicationState", "background");
+                if(ParsePushNotificationPlugin.selfReference != null) {
+                    // Do JS callback in app
+                    ParsePushNotificationPlugin.selfReference.notificationReceivedCB(extras);
+                }
+                super.onPushReceive(context, intent);
             }
-            if(ParsePushNotificationPlugin.selfReference != null) {
-                // Do JS callback in app
-                ParsePushNotificationPlugin.selfReference.notificationReceivedCB(extras);
-            }
+
         }
         catch (JSONException e) {
             Log.d(LOG_TAG, String.format("%s", "JSON error!"));
