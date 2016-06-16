@@ -29,10 +29,7 @@ public class ParseBroadcastReceiver extends ParsePushBroadcastReceiver {
             }
             else {
                 extras.put("applicationState", "background");
-                if(ParsePushNotificationPlugin.selfReference != null) {
-                    // Do JS callback in app
-                    ParsePushNotificationPlugin.selfReference.notificationReceivedCB(extras);
-                }
+                
                 super.onPushReceive(context, intent);
             }
 
